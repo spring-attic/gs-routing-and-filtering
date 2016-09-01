@@ -144,12 +144,12 @@ Add the `application.properties` file to a new directory, `src/main/resources`, 
 include::complete/gateway/src/main/resources/application.properties[]
 ----
 
-Our `zuul` configuration makes the Book service available at `/books`, so we will be able to access Book endpoints at (for example) `/books/available`. We set the path using `zuul.routes.book.path`.
+Spring Cloud Zuul will automatically set the path to the application name.  In this sample because we set `zuul.routes.books.url`, so Zuul will proxy requests to `/books` to this URL.
 
-We're also setting `zuul.routes.book.url`. Notice the second-to-last property in our file: Spring Cloud Netflix Zuul uses Netflix's Ribbon to perform client-side load balancing, and by default, Ribbon would use Netflix Eureka for service discovery. For this simple example, we're skipping service discovery, so we've set `ribbon.eureka.enabled` to `false`. Since Ribbon now can't use Eureka to look up services, we must specify a `url` for the Book service.
+Notice the second-to-last property in our file: Spring Cloud Netflix Zuul uses Netflix's Ribbon to perform client-side load balancing, and by default, Ribbon would use Netflix Eureka for service discovery. For this simple example, we're skipping service discovery, so we've set `ribbon.eureka.enabled` to `false`. Since Ribbon now can't use Eureka to look up services, we must specify a `url` for the Book service.
 
 
-== Add a filter 
+== Add a filter
 
 Now let's see how we can filter requests through our proxy service. Zuul has four standard filter types:
 
@@ -173,7 +173,7 @@ Filter classes implement four methods:
 - `shouldFilter()` contains the logic that determines when to execute this filter (this particular filter will _always_ be executed).
 - `run()` contains the functionality of the filter.
 
-Zuul filters store request and state information in (and share it by means of) the `RequestContext`. We're using that to get at the `HttpServletRequest`, and then we log the HTTP method and URL of the request before it is sent on its way. 
+Zuul filters store request and state information in (and share it by means of) the `RequestContext`. We're using that to get at the `HttpServletRequest`, and then we log the HTTP method and URL of the request before it is sent on its way.
 
 The `GatewayApplication` class is annotated with `@SpringBootApplication`, which is equivalent to (among others) the `@Configuration` annotation that tells Spring to look in a given class for `@Bean` definitions. Add one for our `SimpleFilter` here:
 
@@ -200,4 +200,3 @@ Visit one of the Book service endpoints, as `localhost:8080/books/available`, an
 Congratulations! You've just used Spring to develop an edge service application that can proxy and filter requests for your microservices.
 
 include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/footer.adoc[]
-
