@@ -154,7 +154,7 @@ Notice the second-to-last property in our file: Spring Cloud Netflix Zuul uses N
 Now let's see how we can filter requests through our proxy service. Zuul has four standard filter types:
 
 - **pre** filters are executed before the request is routed,
-- **routing** filters can handle the actual routing of the request,
+- **route** filters can handle the actual routing of the request,
 - **post** filters are executed after the request has been routed, and
 - **error** filters execute if an error occurs in the course of handling the request.
 
