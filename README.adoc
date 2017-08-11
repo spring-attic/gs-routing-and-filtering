@@ -199,4 +199,11 @@ Visit one of the Book service endpoints, as `localhost:8080/books/available`, an
 
 Congratulations! You've just used Spring to develop an edge service application that can proxy and filter requests for your microservices.
 
+== See Also
+
+The following guides may also be helpful:
+
+* https://spring.io/guides/gs/spring-boot/[Building an Application with Spring Boot]
+* https://spring.io/guides/gs/rest-service/[Building a RESTful Web Service]
+
 include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/footer.adoc[]
