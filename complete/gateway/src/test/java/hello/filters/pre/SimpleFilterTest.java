@@ -43,11 +43,11 @@ public class SimpleFilterTest {
     public void testRun() {
         HttpServletRequest req = mock(HttpServletRequest.class);
         when(req.getMethod()).thenReturn("GET");
-        when(req.getRequestURL()).thenReturn(new StringBuffer("http://foo"));
+        when(req.getRequestURL()).thenReturn(new StringBuffer("https://foo"));
         RequestContext context = mock(RequestContext.class);
         when(context.getRequest()).thenReturn(req);
         RequestContext.testSetCurrentContext(context);
         filter.run();
-        this.outputCapture.expect(Matchers.containsString("GET request to http://foo"));
+        this.outputCapture.expect(Matchers.containsString("GET request to https://foo"));
     }
 }
