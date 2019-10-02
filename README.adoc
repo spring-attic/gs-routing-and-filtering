@@ -10,194 +10,252 @@ projects: [spring-cloud, spring-cloud-netflix]
 :source-highlighter: prettify
 :project_id: gs-routing-and-filtering
 
-This guide walks you through the process of routing and filtering requests to a microservice application using the Netflix Zuul edge service library.
+This guide walks you through the process of routing and filtering requests to a
+microservice application by using the Netflix Zuul edge service library.
 
-== What you'll build
+== What You Will Build
 
-You'll write a simple microservice application and then build a reverse proxy application that uses https://github.com/spring-cloud/spring-cloud-netflix[Netflix Zuul] to forward requests to the service application. You'll also see how to use Zuul to filter requests made through the proxy service.
+You will write a simple microservice application and then build a reverse proxy
+application that uses https://github.com/spring-cloud/spring-cloud-netflix[Netflix Zuul]
+to forward requests to the service application. You will also see how to use Zuul to
+filter requests that are made through the proxy service.
 
-== What you'll need
+== What You Need
 
 :java_version: 1.8
 include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/prereq_editor_jdk_buildtools.adoc[]
 
 include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/how_to_complete_this_guide.adoc[]
 
-[[reveal-gradle]]
-[.reveal-gradle]
-== Build with Gradle
-
 [[scratch]]
-[.use-gradle]
-== Build with Gradle
+== Starting with Spring Initializr
 
-include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/build_system_intro.adoc[]
+For all Spring applications, you should start with the https://start.spring.io[Spring
+Initializr]. The Initializr offers a fast way to pull in all the dependencies you need for
+an application and does a lot of the set up for you.
 
-include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/create_directory_structure_hello.adoc[]
+This guide needs two applications. The first application (the book application) needs only
+the Spring Web dependency. The following image shows the Initializr set up for the book
+application:
 
-include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/create_both_builds.adoc[]
+image::images/initializr-book.png[]
 
-`book/build.gradle`
-// AsciiDoc source formatting doesn't support groovy, so using java instead
-[source,java]
+NOTE: The preceding image shows the Initializr with Maven chosen as the build tool. You
+can also use Gradle. It also shows values of `com.example` and
+`routing-and-filtering-book` as the Group and Artifact, respectively. You will use those
+values throughout the rest of this sample.
+
+The following listing shows the `pom.xml` file (for the book application) that is created
+when you choose Maven:
+
+====
+[src,xml]
 ----
-include::https://raw.githubusercontent.com/spring-guides/{project_id}/master/initial/book/build.gradle[]
+include::initial/book/pom.xml[]
 ----
+====
 
-`gateway/build.gradle`
-// AsciiDoc source formatting doesn't support groovy, so using java instead
-[source,java]
+The following listing shows the `build.gradle` file (for the book application) that is
+created when you choose Gradle:
+
+====
+[src,groovy]
 ----
-include::https://raw.githubusercontent.com/spring-guides/{project_id}/master/initial/gateway/build.gradle[]
+include::initial/book/build.gradle[]
 ----
+====
 
-include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/spring-boot-gradle-plugin.adoc[]
+The second application (the routing and filtering application) needs the Spring Web and
+Zuul dependencies. The following image  shows the Initializr set up for the routing and
+filtering application:
 
-[[reveal-maven]]
-[.reveal-maven]
-== Build with Maven
+image::images/initializr-gateway.png[]
 
-[[use-maven]]
-[.use-maven]
-== Build with Maven
+NOTE: The preceding image shows the Initializr with Maven chosen as the build tool. You
+can also use Gradle. It also shows values of `com.example` and
+`routing-and-filtering-gateway` as the Group and Artifact, respectively. You will use
+those values throughout the rest of this sample.
 
-include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/build_system_intro_maven.adoc[]
+The following listing shows the `pom.xml` file (for the routing and filtering application)
+that is created when you choose Maven:
 
-include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/create_directory_structure_hello.adoc[]
-
-`book/pom.xml`
-[source,xml]
+====
+[src,xml]
 ----
-include::https://raw.githubusercontent.com/spring-guides/{project_id}/master/initial/book/pom.xml[]
+include::initial/gateway/pom.xml[]
 ----
+====
 
-`gateway/pom.xml`
-[source,xml]
+The following listing shows the `build.gradle` file (for the routing and filtering
+application) that is created when you choose Gradle:
+
+====
+[src,groovy]
 ----
-include::https://raw.githubusercontent.com/spring-guides/{project_id}/master/initial/gateway/pom.xml[]
+include::initial/gateway/build.gradle[]
 ----
+====
 
-include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/spring-boot-maven-plugin.adoc[]
-
-include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/hide-show-sts.adoc[]
-
+NOTE: For convenience, we have provided build files (a `pom.xml` file and a `build.gradle`
+file) at the top of the project (one directory above the `book` and `gateway` directories)
+that you can use to build both projects at once. We also added the Maven and Gradle
+wrappers there.
 
 [[initial]]
-== Set up a microservice
+== Set up a Microservice
 
-The Book service will be super-simple. Edit `BookApplication.java` to look like this:
+The Book service will be as simple as a Spring application can be. Edit
+`RoutingAndFilteringBookApplicationBookApplication.java` so that it matches the following
+listing (from
+`book/src/main/java/com/example/routingandfilteringbook/RoutingAndFilteringBookApplication.java`):
 
-`book/src/main/java/hello/BookApplication.java`
+====
 [source,java]
 ----
-include::complete/book/src/main/java/hello/BookApplication.java[]
+include::complete/book/src/main/java/com/example/routingandfilteringbook/RoutingAndFilteringBookApplication.java[]
 ----
+====
 
-The `BookApplication` class is now a REST controller. `@RestController` marks the class as a controller class, and also ensures that return values from `@RequestMapping` methods in this class will be automatically converted appropriately and written directly to the HTTP response.
+The `RoutingAndFilteringBookApplicationBookApplication` class is now a REST controller.
+The `@RestController` annotation marks the class as a controller class and ensures that
+return values from `@RequestMapping` methods in this class are automatically and
+appropriately converted and written directly to the HTTP response.
 
-Speaking of `@RequestMapping` methods, we've added two: `available()` and `checkedOut()`. They handle requests to the paths `/available` and `/checked-out`, each simply returning the `String` name of a book.
+Speaking of `@RequestMapping` methods, we have added two: `available()` and
+`checkedOut()`. They handle requests to the `/available` and `/checked-out` paths, each of
+which returns the `String` name of a book.
 
-Set the application name (`book`) in `src/main/resources/application.properties`.
+Set the application name (`book`) in `src/main/resources/application.properties`, as the
+following listing shows:
 
-`book/src/main/resources/application.properties`
+====
 [source,properties]
 ----
 include::complete/book/src/main/resources/application.properties[]
 ----
+====
 
-We're also setting `server.port` here so that it won't conflict with our edge service when we get both services up and running locally.
+Set `server.port` here, too, so that it does not conflict with your edge service when you
+get both services up and running locally.
 
+== Create an Edge Service
 
-== Create an edge service
+Spring Cloud Netflix includes an embedded Zuul proxy, which you can enable with the
+`@EnableZuulProxy` annotation. This will turn the Gateway application into a reverse proxy
+that forwards relevant calls to other services -- such as our book application.
 
-Spring Cloud Netflix includes an embedded Zuul proxy, which we can enable with the `@EnableZuulProxy` annotation. This will turn the Gateway application into a reverse proxy that forwards relevant calls to other services---such as our Book service.
+Open the Gateway application's `RoutingAndFilteringGatewayApplicationGatewayApplication`
+class and add the `@EnableZuulProxy` annotation, as the following listing (from
+`gateway/src/main/java/com/example/routingandfilteringgateway/RoutingAndFilteringGatewayApplication.java`)
+shows:
 
-Open the Gateway application's `GatewayApplication` class and add the annotation, like so:
-
-`gateway/src/main/java/hello/GatewayApplication.java`
+====
 [source,java]
 ----
-package hello;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-
-@EnableZuulProxy
-@SpringBootApplication
-public class GatewayApplication {
-
-  public static void main(String[] args) {
-    SpringApplication.run(GatewayApplication.class, args);
-  }
-
-}
+include::complete/gateway/src/main/java/com/example/routingandfilteringgateway/RoutingAndFilteringGatewayApplication.java[]
 ----
+====
 
-To forward requests from the Gateway application, we need to tell Zuul the routes that it should watch and the services to which to forward requests to those routes. We specify routes using properties under `zuul.routes`. Each of our microservices can have an entry under `zuul.routes.NAME`, where `NAME` is the application name (as stored in the `spring.application.name` property).
+To forward requests from the Gateway application, you need to tell Zuul the routes that it
+should watch and the services to which to forward requests that are made to those routes.
+We specify routes by setting properties under `zuul.routes`. Each of our microservices can
+have an entry under `zuul.routes.NAME`, where `NAME` is the application name (as stored in
+the `spring.application.name` property).
 
-Add the `application.properties` file to a new directory, `src/main/resources`, in the Gateway application. It should look like this:
+Add the `application.properties` file to a new directory (`src/main/resources`) in the
+Gateway application. It should match the following listing (from
+`gateway/src/main/resources/application.properties`):
 
-`gateway/src/main/resources/application.properties`
+====
 [source,properties]
 ----
 include::complete/gateway/src/main/resources/application.properties[]
 ----
+====
 
-Spring Cloud Zuul will automatically set the path to the application name.  In this sample because we set `zuul.routes.books.url`, so Zuul will proxy requests to `/books` to this URL.
+Spring Cloud Zuul automatically sets the path to the application name. In this sample, set
+`zuul.routes.books.url` so that Zuul will proxy requests to `/books` to this URL.
 
-Notice the second-to-last property in our file: Spring Cloud Netflix Zuul uses Netflix's Ribbon to perform client-side load balancing, and by default, Ribbon would use Netflix Eureka for service discovery. For this simple example, we're skipping service discovery, so we've set `ribbon.eureka.enabled` to `false`. Since Ribbon now can't use Eureka to look up services, we must specify a `url` for the Book service.
+Notice the second property in the `application.properties` file, Spring Cloud Netflix Zuul
+uses Netflix's Ribbon to perform client-side load balancing. By default, Ribbon would use
+Netflix Eureka for service discovery. For this simple example, you can skip service
+discovery, so set `ribbon.eureka.enabled` to `false`. Since Ribbon now cannot use Eureka
+to look up services, we must specify a `url` for the book service.
 
+== Add a Filter
 
-== Add a filter
+Now you can see how to filter requests through your proxy service. Zuul has four standard
+filter types:
 
-Now let's see how we can filter requests through our proxy service. Zuul has four standard filter types:
+* `pre` filters run before the request is routed.
+* `route` filters can handle the actual routing of the request.
+* `post` filters run after the request has been routed.
+* `error` filters run if an error occurs in the course of handling the request.
 
-- **pre** filters are executed before the request is routed,
-- **route** filters can handle the actual routing of the request,
-- **post** filters are executed after the request has been routed, and
-- **error** filters execute if an error occurs in the course of handling the request.
+You are going to write a `pre` filter. Spring Cloud Netflix picks up, as a filter, any
+`@Bean` that extends `com.netflix.zuul.ZuulFilter` and is available in the application
+context. The following listing (from
+`gateway/src/main/java/com/example/routingandfilteringgateway/filters/pre/SimpleFilter.java`)
+shows the filter you need:
 
-We're going to write a _pre_ filter. Spring Cloud Netflix picks up, as a filter, any `@Bean` which extends `com.netflix.zuul.ZuulFilter` and is available in the application context. Create a new directory, `src/main/java/hello/filters/pre`, and within it, create the filter file, `SimpleFilter.java`:
-
-`gateway/src/main/java/hello/filters/pre/SimpleFilter.java`
+====
 [source,java]
 ----
-include::complete/gateway/src/main/java/hello/filters/pre/SimpleFilter.java[]
+include::complete/gateway/src/main/java/com/example/routingandfilteringgateway/filters/pre/SimpleFilter.java[]
 ----
+====
 
 Filter classes implement four methods:
 
-- `filterType()` returns a `String` that stands for the type of the filter---in this case, `pre`, or it could be `route` for a routing filter.
-- `filterOrder()` gives the order in which this filter will be executed, relative to other filters.
-- `shouldFilter()` contains the logic that determines when to execute this filter (this particular filter will _always_ be executed).
-- `run()` contains the functionality of the filter.
+* `filterType()`: Returns a `String` that stands for the type of the filter -- in this
+case, `pre`. (It would be `route` for a routing filter.)
+* `filterOrder()`: Gives the order in which this filter is to be run, relative to other
+filters.
+* `shouldFilter()`: Contains the logic that determines when to run this filter (this
+  particular filter is always run).
+* `run()`: Contains the functionality of the filter.
 
-Zuul filters store request and state information in (and share it by means of) the `RequestContext`. We're using that to get at the `HttpServletRequest`, and then we log the HTTP method and URL of the request before it is sent on its way.
+Zuul filters store request and state information in (and share it by means of) the
+`RequestContext`. You can use that to get at the `HttpServletRequest` and then log the
+HTTP method and URL of the request before it is sent on its way.
 
-The `GatewayApplication` class is annotated with `@SpringBootApplication`, which is equivalent to (among others) the `@Configuration` annotation that tells Spring to look in a given class for `@Bean` definitions. Add one for our `SimpleFilter` here:
+The `GatewayApplication` class is annotated with `@SpringBootApplication`, which includes
+(among others) the `@Configuration` annotation that tells Spring to look in a given class
+for `@Bean` definitions. Put the filter in the application class, as shown in the
+following listing (from
+`gateway/src/main/java/com/example/routingandfilteringgateway/RoutingAndFilteringGatewayApplication.java`):
 
-`gateway/src/main/java/hello/GatewayApplication.java`
+====
 [source,java]
 ----
-include::complete/gateway/src/main/java/hello/GatewayApplication.java[]
+include::complete/gateway/src/main/java/com/example/routingandfilteringgateway/RoutingAndFilteringGatewayApplication.java[]
 ----
+====
 
+== Testing Your Application
 
-== Trying it out
+Make sure that both applications are running. In a browser, visit one of the book
+application's endpoints through the Gateway application. If you have used the
+configuration shown in this guide, you can access the book application directly at
+`localhost:8090/available` and through the Gateway service at
+`localhost:8080/books/available`.
 
-Make sure that both applications are running. In a browser, visit one of the Book application's endpoints via the Gateway application. If you've used the configuration shown in this guide, you can access the Book service directly at `localhost:8090` and via the Gateway service at `localhost:8080/books`.
+Visit one of the Book service endpoints (`localhost:8080/books/available` or
+`localhost:8080/books/checked-out`) and you should see your request's method logged by the
+Gateway application before it is handed on to the Book application, as the following
+sample logging output shows:
 
-Visit one of the Book service endpoints, as `localhost:8080/books/available`, and you should see your request's method logged by the Gateway application before it's handed on to the Book application:
-
+====
+[source,text]
 ----
-2016-01-19 16:51:14.672  INFO 58807 --- [nio-8080-exec-6] hello.filters.pre.SimpleFilter           : GET request to http://localhost:8080/books/available
-2016-01-19 16:51:14.672  INFO 58807 --- [nio-8080-exec-6] o.s.c.n.zuul.filters.ProxyRouteLocator   : Finding route for path: /books/available
+2019-10-02 10:58:34.694  INFO 11608 --- [nio-8080-exec-4] c.e.r.filters.pre.SimpleFilter           : GET request to http://localhost:8080/books/available
 ----
+====
 
 == Summary
 
-Congratulations! You've just used Spring to develop an edge service application that can proxy and filter requests for your microservices.
+Congratulations! You have used Spring to develop an edge service application that can
+proxy and filter requests for your microservices.
 
 == See Also
 
