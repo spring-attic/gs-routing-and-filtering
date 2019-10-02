@@ -1,4 +1,4 @@
-package hello;
+package com.example.routingandfilteringgateway;
 
 import com.netflix.zuul.context.RequestContext;
 import org.junit.AfterClass;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT, classes = GatewayApplication.class)
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT, classes = RoutingAndFilteringGatewayApplication.class)
 public class GatewayApplicationTest {
 
     @Autowired

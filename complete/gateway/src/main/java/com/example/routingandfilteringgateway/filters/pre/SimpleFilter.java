@@ -1,4 +1,4 @@
-package hello.filters.pre;
+package com.example.routingandfilteringgateway.filters.pre;
 
 import javax.servlet.http.HttpServletRequest;
 import com.netflix.zuul.context.RequestContext;
