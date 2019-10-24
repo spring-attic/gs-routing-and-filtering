@@ -1,11 +1,11 @@
 package com.example.routingandfilteringgateway;
 
 import com.netflix.zuul.context.RequestContext;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -13,13 +13,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT, classes = RoutingAndFilteringGatewayApplication.class)
 public class GatewayApplicationTest {
 
@@ -28,18 +26,18 @@ public class GatewayApplicationTest {
 
     static ConfigurableApplicationContext bookService;
 
-    @BeforeClass
+    @BeforeAll
     public static void startBookService() {
         bookService = SpringApplication.run(BookService.class,
                 "--server.port=8090");
     }
 
-    @AfterClass
+    @AfterAll
     public static void closeBookService() {
         bookService.close();
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         RequestContext.testSetCurrentContext(new RequestContext());
     }
