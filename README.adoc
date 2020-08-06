@@ -3,7 +3,7 @@ tags: [spring cloud, zuul]
 projects: [spring-cloud, spring-cloud-netflix]
 ---
 :spring_version: current
-:spring_boot_version: 1.2.8.RELEASE
+:spring_boot_version: 2.3.2.RELEASE
 :DataSource:
 :toc:
 :icons: font
@@ -35,15 +35,7 @@ Initializr]. The Initializr offers a fast way to pull in all the dependencies yo
 an application and does a lot of the set up for you.
 
 This guide needs two applications. The first application (the book application) needs only
-the Spring Web dependency. The following image shows the Initializr set up for the book
-application:
-
-image::images/initializr-book.png[]
-
-NOTE: The preceding image shows the Initializr with Maven chosen as the build tool. You
-can also use Gradle. It also shows values of `com.example` and
-`routing-and-filtering-book` as the Group and Artifact, respectively. You will use those
-values throughout the rest of this sample.
+the Spring Web dependency.
 
 The following listing shows the `pom.xml` file (for the book application) that is created
 when you choose Maven:
