@@ -58,15 +58,7 @@ include::initial/book/build.gradle[]
 ====
 
 The second application (the routing and filtering application) needs the Spring Web and
-Zuul dependencies. The following image  shows the Initializr set up for the routing and
-filtering application:
-
-image::images/initializr-gateway.png[]
-
-NOTE: The preceding image shows the Initializr with Maven chosen as the build tool. You
-can also use Gradle. It also shows values of `com.example` and
-`routing-and-filtering-gateway` as the Group and Artifact, respectively. You will use
-those values throughout the rest of this sample.
+Zuul dependencies.
 
 The following listing shows the `pom.xml` file (for the routing and filtering application)
 that is created when you choose Maven:
