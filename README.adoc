@@ -1,3 +1,5 @@
+== gs-routing-and-filtering is no longer actively maintained by VMware, Inc.
+
 ---
 tags: [spring cloud, zuul]
 projects: [spring-cloud, spring-cloud-netflix]
